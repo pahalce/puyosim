@@ -8,11 +8,7 @@ function setup() {
     field = new Field();
     simBtn = createButton('シミュレート');
     simBtn.position(320, 20);
-    simBtn.mousePressed(() => field.checkAll());
-
-    fallBtn = createButton('落とす');
-    fallBtn.position(320, 50);
-    fallBtn.mousePressed(() => field.checkFall());
+    simBtn.mousePressed(() => field.simulate());
 }
 
 function draw() {
@@ -46,11 +42,6 @@ class Field {
         this.cell[2][1]="blue"
         this.cell[3][1]="blue"
         this.cell[4][1]="blue"
-        this.cell[2][1]="blue"
-        this.cell[2][2]="blue"
-        this.cell[2][5]="blue"
-        this.cell[3][2]="blue"
-        this.cell[4][2]="blue"
     }
 
     draw() {
@@ -117,23 +108,49 @@ class Field {
     erase (x,y) {
         this.cell[x][y] = ""
     }
-    checkFall() {
+    fall() {
+        let found = false
         for (let x=this.w-1; x>=0; x--){
-            for (let y=this.h-2; y>=0; y--){
-                if (!this.isEmpty(x,y)) {
-                    this.fall(x,y);
+            for (let y=this.h-2; y>=0; y--){                
+                if (!this.isEmpty(x,y) && this.isEmpty(x,y+1)) {
+                    this.fallPuyo(x,y);
+                    found=true
                 }
             }
         }
+        return found
     }
-    fall(x,y) {
-        if (!this.isEmpty(x,y+1)) return
-
+    canFall() { // not in use
+        let found = false
+        for (let x=this.w-1; x>=0; x--){
+            for (let y=this.h-2; y>=0; y--){
+                if (!this.isEmpty(x,y) && this.isEmpty(x,y+1)) {
+                    found = true
+                }
+            }
+        }
+        return found
+    }
+    fallPuyo(x,y) {
         let i=y
         while (this.isEmpty(x,i+1)) {
             i+=1
         }
         this.cell[x][i] = this.cell[x][y]
         this.cell[x][y] = ""
+    }
+    async simulate() {
+        while(this.fall()) {
+            await this.wait();
+            this.checkAll();
+            await this.wait();
+        }
+    }
+    wait() {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, 700);
+        })
     }
 }
