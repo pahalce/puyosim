@@ -9,12 +9,15 @@ function setup() {
     simBtn = createButton('シミュレート');
     simBtn.position(320, 20);
     simBtn.mousePressed(() => field.checkAll());
+
+    fallBtn = createButton('落とす');
+    fallBtn.position(320, 50);
+    fallBtn.mousePressed(() => field.checkFall());
 }
 
 function draw() {
     background(220);
     field.draw();
-    
 }
 
 
@@ -112,6 +115,25 @@ class Field {
         this.cell[x][y] = color
     }
     erase (x,y) {
+        this.cell[x][y] = ""
+    }
+    checkFall() {
+        for (let x=this.w-1; x>=0; x--){
+            for (let y=this.h-2; y>=0; y--){
+                if (!this.isEmpty(x,y)) {
+                    this.fall(x,y);
+                }
+            }
+        }
+    }
+    fall(x,y) {
+        if (!this.isEmpty(x,y+1)) return
+
+        let i=y
+        while (this.isEmpty(x,i+1)) {
+            i+=1
+        }
+        this.cell[x][i] = this.cell[x][y]
         this.cell[x][y] = ""
     }
 }
