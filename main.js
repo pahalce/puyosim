@@ -1,4 +1,7 @@
 let field,simBtn;
+document.oncontextmenu = function() {
+    if (mouseX < width && mouseY < height) return false;
+}
 
 function setup() {
     createCanvas(800, 800);
@@ -16,8 +19,15 @@ function draw() {
 
 
 function mousePressed() {
-    if (mouseX >= 0 && mouseX <= field.gridToPos(field.w) && mouseY >=0 && mouseY <= field.gridToPos(field.h)) {
-        field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
+    if (mouseButton === LEFT) {
+        if (mouseX >= 0 && mouseX <= field.gridToPos(field.w) && mouseY >=0 && mouseY <= field.gridToPos(field.h)) {
+            field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
+        }
+    }
+    if (mouseButton === RIGHT) {
+        if (mouseX >= 0 && mouseX <= field.gridToPos(field.w) && mouseY >=0 && mouseY <= field.gridToPos(field.h)) {
+            field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY))
+        }
     }
 }
 
@@ -59,7 +69,6 @@ class Field {
     check(x,y,color,start=[0,0]) {
         this.eraseInfo=[]
         this.checkConnection(x,y,color,start)
-        console.log(this.eraseInfo);
         
         if (this.eraseInfo.length < 4) {
             this.eraseInfo.forEach(info => {
@@ -101,5 +110,8 @@ class Field {
     }
     place(x,y,color) {
         this.cell[x][y] = color
+    }
+    erase (x,y) {
+        this.cell[x][y] = ""
     }
 }
