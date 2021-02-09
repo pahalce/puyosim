@@ -14,11 +14,18 @@ function draw() {
     
 }
 
+
+function mousePressed() {
+    if (mouseX >= 0 && mouseX <= field.gridToPos(field.w) && mouseY >=0 && mouseY <= field.gridToPos(field.h)) {
+        field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
+    }
+}
+
 class Field {
     constructor() {
         this.w = 6
         this.h = 12
-        this.size=40
+        this.gridSize=40
         this.cell = Array.from(new Array(this.w), () => new Array(this.h).fill(""));
         this.eraseInfo = []
         this.cell[1][0]="blue"
@@ -31,17 +38,15 @@ class Field {
         this.cell[2][5]="blue"
         this.cell[3][2]="blue"
         this.cell[4][2]="blue"
-
-        // this.check(1,0,"blue")
     }
 
     draw() {
         for (let x=0; x<this.w; x++){
             for (let y=0; y<this.h; y++){
-                rect(x*this.size,y*this.size,this.size,this.size)
+                rect(x*this.gridSize,y*this.gridSize,this.gridSize,this.gridSize)
                 if (!this.isEmpty(x,y)) {
                     fill(color(this.cell[x][y]))
-                    ellipse(x*this.size+0.5*this.size,y*this.size+0.5*this.size,this.size)
+                    ellipse(x*this.gridSize+0.5*this.gridSize,y*this.gridSize+0.5*this.gridSize,this.gridSize)
                     fill(220)
                 }
             }
@@ -61,9 +66,6 @@ class Field {
                 this.cell[info.x][info.y] = info.color
             })
         } 
-        // this.eraseInfo.forEach(info => {
-        //     this.cell[info.x][info.y] = info.color
-        // })
     }
     checkAll() {
         for (let x=0; x<this.w; x++){
@@ -90,5 +92,14 @@ class Field {
             this.checkConnection(x-1,y,color);
             this.checkConnection(x,y-1,color);
         }
+    }
+    posToGrid(pos) {
+        return floor(pos/this.gridSize)
+    }
+    gridToPos(pos) {
+        return pos*this.gridSize
+    }
+    place(x,y,color) {
+        this.cell[x][y] = color
     }
 }
