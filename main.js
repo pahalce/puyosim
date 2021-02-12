@@ -1,11 +1,15 @@
 let field,simBtn;
+const PUYOLIST = ["blue","red","green"]
+
+
 document.oncontextmenu = function() {
     if (mouseX < width && mouseY < height) return false;
 }
 
 function setup() {
     createCanvas(800, 800);
-    field = new Field();
+    field = new Field(6,12,40);
+    puyoSelector = new PuyoSelector(PUYOLIST.length,1,40,field.w*field.gridSize+20,field.gridSize*2);
     simBtn = createButton('シミュレート');
     simBtn.position(320, 20);
     simBtn.mousePressed(() => field.simulate());
@@ -14,28 +18,53 @@ function setup() {
 function draw() {
     background(220);
     field.draw();
-}
+    puyoSelector.draw();
 
-
-function mousePressed() {
-    if (mouseButton === LEFT) {
-        if (mouseX >= 0 && mouseX <= field.gridToPos(field.w) && mouseY >=0 && mouseY <= field.gridToPos(field.h)) {
+    if (mouseIsPressed) {
+        if (field.isLeftClicked()) {
             field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
         }
-    }
-    if (mouseButton === RIGHT) {
-        if (mouseX >= 0 && mouseX <= field.gridToPos(field.w) && mouseY >=0 && mouseY <= field.gridToPos(field.h)) {
-            field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY))
+        if (field.isRightClicked()) {
+            field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
         }
     }
 }
 
-class Field {
-    constructor() {
-        this.w = 6
-        this.h = 12
-        this.gridSize=40
+class UIGrid {
+    constructor(x,y,w,h,gridSize) {
+        this.x=x;
+        this.y=y;
+        this.w = w
+        this.h = h
+        this.gridSize = gridSize
         this.cell = Array.from(new Array(this.w), () => new Array(this.h).fill(""));
+    }
+    draw() {
+        for (let xx=0; xx<this.w; xx++){
+            for (let yy=0; yy<this.h; yy++){
+                rect(xx*this.gridSize+this.x,yy*this.gridSize+this.y,this.gridSize,this.gridSize)
+            }
+        }
+    }
+    posToGrid(pos, mode=0) { // 0:x 1:y
+        return (mode==0) ? floor((pos-this.x)/this.gridSize) : floor((pos-this.y)/this.gridSize)
+    }
+    gridToPos(pos, mode=0) { // 0:x 1:y
+        return (mode==0) ? pos*this.gridSize+this.x : pos*this.gridSize+this.y
+    }
+    isLeftClicked() {
+        print("areax:",this.x,"～",this.gridToPos(this.w))
+        print("areay:",this.y,"～",this.gridToPos(this.h))
+        return (mouseButton === LEFT) && (mouseX >= this.x && mouseX <= this.gridToPos(this.w) && mouseY >=this.y && mouseY <= this.gridToPos(this.h))
+    }
+    isRightClicked() {
+        return (mouseButton === RIGHT) && (mouseX >= this.x && mouseX <= this.gridToPos(this.w) && mouseY >=this.y && mouseY <= this.gridToPos(this.h))
+    }
+}
+
+class Field extends UIGrid{
+    constructor(w,h,gridSize,x=0,y=0) {
+        super(x,y,w,h,gridSize)
         this.eraseInfo = []
         this.cell[1][0]="blue"
         this.cell[2][0]="blue"
@@ -45,12 +74,12 @@ class Field {
     }
 
     draw() {
-        for (let x=0; x<this.w; x++){
-            for (let y=0; y<this.h; y++){
-                rect(x*this.gridSize,y*this.gridSize,this.gridSize,this.gridSize)
-                if (!this.isEmpty(x,y)) {
-                    fill(color(this.cell[x][y]))
-                    ellipse(x*this.gridSize+0.5*this.gridSize,y*this.gridSize+0.5*this.gridSize,this.gridSize)
+        for (let xx=0; xx<this.w; xx++){
+            for (let yy=0; yy<this.h; yy++){
+                rect(xx*this.gridSize,yy*this.gridSize,this.gridSize,this.gridSize)
+                if (!this.isEmpty(xx,yy)) {
+                    fill(color(this.cell[xx][yy]))
+                    ellipse(xx*this.gridSize+0.5*this.gridSize,yy*this.gridSize+0.5*this.gridSize,this.gridSize)
                     fill(220)
                 }
             }
@@ -95,12 +124,6 @@ class Field {
             this.checkConnection(x-1,y,color);
             this.checkConnection(x,y-1,color);
         }
-    }
-    posToGrid(pos) {
-        return floor(pos/this.gridSize)
-    }
-    gridToPos(pos) {
-        return pos*this.gridSize
     }
     place(x,y,color) {
         this.cell[x][y] = color
@@ -152,5 +175,25 @@ class Field {
                 resolve();
             }, 700);
         })
+    }
+}
+
+class PuyoSelector extends UIGrid {
+    constructor(w,h,gridSize,x=0,y=0) {
+        super(x,y,w,h,gridSize);
+        this.selected = 0;
+        console.log('w,h',this.w,this.h,this.x,this.y);
+    }
+    draw() {
+        stroke("grey")
+        strokeWeight(3);
+        rect(this.x+(this.selected*this.gridSize),this.y,this.gridSize,this.gridSize)
+        stroke("black")
+        strokeWeight(1);
+        for (let i=0;i<PUYOLIST.length;i++){
+            fill(color(PUYOLIST[i]))
+            ellipse(this.x+i*this.gridSize+0.5*this.gridSize,this.y+0.5*this.gridSize,this.gridSize)
+            fill(220)
+        }
     }
 }
