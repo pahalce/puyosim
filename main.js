@@ -22,10 +22,13 @@ function draw() {
 
     if (mouseIsPressed) {
         if (field.isLeftClicked()) {
-            field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
+            field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),PUYOLIST[puyoSelector.selected])
         }
         if (field.isRightClicked()) {
-            field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY),"green")
+            field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY))
+        }
+        if (puyoSelector.isLeftClicked()) {
+            puyoSelector.select(puyoSelector.posToGrid(mouseX))
         }
     }
 }
@@ -53,8 +56,6 @@ class UIGrid {
         return (mode==0) ? pos*this.gridSize+this.x : pos*this.gridSize+this.y
     }
     isLeftClicked() {
-        print("areax:",this.x,"～",this.gridToPos(this.w))
-        print("areay:",this.y,"～",this.gridToPos(this.h))
         return (mouseButton === LEFT) && (mouseX >= this.x && mouseX <= this.gridToPos(this.w) && mouseY >=this.y && mouseY <= this.gridToPos(this.h))
     }
     isRightClicked() {
@@ -182,7 +183,6 @@ class PuyoSelector extends UIGrid {
     constructor(w,h,gridSize,x=0,y=0) {
         super(x,y,w,h,gridSize);
         this.selected = 0;
-        console.log('w,h',this.w,this.h,this.x,this.y);
     }
     draw() {
         stroke("grey")
@@ -195,5 +195,8 @@ class PuyoSelector extends UIGrid {
             ellipse(this.x+i*this.gridSize+0.5*this.gridSize,this.y+0.5*this.gridSize,this.gridSize)
             fill(220)
         }
+    }
+    select(n) {
+        this.selected = n
     }
 }
