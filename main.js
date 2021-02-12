@@ -139,7 +139,7 @@ class Field extends UIGrid{
         }
         return found
     }
-    canFall() { // not in use
+    canFall() {
         let found = false
         for (let x=this.w-1; x>=0; x--){
             for (let y=this.h-2; y>=0; y--){
@@ -159,8 +159,12 @@ class Field extends UIGrid{
         this.cell[x][y] = ""
     }
     async simulate() { // isfall関数を作る(落ちれるかどうか確認するだけで実際に落とす処理はやらない関数)
+        if (!this.canFall()) {
+            this.checkAll();
+            await this.wait()
+        }
+
         while(this.fall()) {
-            
             await this.wait();
             this.checkAll();
             await this.wait();
