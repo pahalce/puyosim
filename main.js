@@ -158,7 +158,7 @@ class Field extends UIGrid{
         this.cell[x][i] = this.cell[x][y]
         this.cell[x][y] = ""
     }
-    async simulate() { // isfall関数を作る(落ちれるかどうか確認するだけで実際に落とす処理はやらない関数)
+    async simulate() {
         if (!this.canFall()) {
             this.checkAll();
             await this.wait()
