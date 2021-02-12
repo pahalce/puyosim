@@ -67,11 +67,6 @@ class Field extends UIGrid{
     constructor(w,h,gridSize,x=0,y=0) {
         super(x,y,w,h,gridSize)
         this.eraseInfo = []
-        this.cell[1][0]="blue"
-        this.cell[2][0]="blue"
-        this.cell[2][1]="blue"
-        this.cell[3][1]="blue"
-        this.cell[4][1]="blue"
     }
 
     draw() {
@@ -163,12 +158,14 @@ class Field extends UIGrid{
         this.cell[x][i] = this.cell[x][y]
         this.cell[x][y] = ""
     }
-    async simulate() {
+    async simulate() { // isfall関数を作る(落ちれるかどうか確認するだけで実際に落とす処理はやらない関数)
         while(this.fall()) {
+            
             await this.wait();
             this.checkAll();
             await this.wait();
         }
+        
     }
     wait() {
         return new Promise(resolve => {
