@@ -24,7 +24,8 @@ function draw() {
 
     if (mouseIsPressed) {
         if (field.isLeftClicked()) {
-            field.place(field.posToGrid(mouseX),field.posToGrid(mouseY),PUYOLIST[puyoSelector.selected])
+            // print("place:",field.posToGrid(mouseX),field.posToGrid(mouseY),puyoSelector.selected)
+            field.place(field.posToGrid(mouseX),field.posToGrid(mouseY,1),PUYOLIST[puyoSelector.selected])
         }
         if (field.isRightClicked()) {
             field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY))
@@ -58,10 +59,10 @@ class UIGrid {
         return (mode==0) ? pos*this.gridSize+this.x : pos*this.gridSize+this.y
     }
     isLeftClicked() {
-        return (mouseButton === LEFT) && (mouseX >= this.x && mouseX <= this.gridToPos(this.w) && mouseY >=this.y && mouseY <= this.gridToPos(this.h))
+        return (mouseButton === LEFT) && (mouseX > this.x && mouseX < this.gridToPos(this.w) && mouseY > this.y && mouseY < this.gridToPos(this.h))
     }
     isRightClicked() {
-        return (mouseButton === RIGHT) && (mouseX >= this.x && mouseX <= this.gridToPos(this.w) && mouseY >=this.y && mouseY <= this.gridToPos(this.h))
+        return (mouseButton === RIGHT) && (mouseX > this.x && mouseX < this.gridToPos(this.w) && mouseY > this.y && mouseY < this.gridToPos(this.h))
     }
 }
 
@@ -129,6 +130,7 @@ class Field extends UIGrid{
         }
     }
     place(x,y,color) {
+        print(this.cell[x][y],x,y,color)
         this.cell[x][y] = color
     }
     erase (x,y) {
