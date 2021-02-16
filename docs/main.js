@@ -11,8 +11,8 @@ document.oncontextmenu = function() {
 
 function setup() {
     createCanvas(800, 800);
-    field = new Field(6,12,40);
-    puyoSelector = new PuyoSelector(PUYOLIST.length,1,40,field.w*field.gridSize+20,field.gridSize*2);
+    field = new Field(6,12,40, 100, 100);
+    puyoSelector = new PuyoSelector(PUYOLIST.length,1,40,field.w*field.gridSize+20+field.x,field.gridSize*2+field.y);
     simBtn = createButton('シミュレート');
     simBtn.position(320, 20);
     simBtn.mousePressed(() => field.simulate());
@@ -81,17 +81,17 @@ class Field extends UIGrid{
     draw() {
         for (let xx=0; xx<this.w; xx++){
             for (let yy=0; yy<this.h; yy++){
-                rect(xx*this.gridSize,yy*this.gridSize,this.gridSize,this.gridSize)
+                rect(xx*this.gridSize + this.x,yy*this.gridSize + this.y,this.gridSize,this.gridSize)
                 if (!this.isEmpty(xx,yy)) {
                     fill(color(this.cell[xx][yy]))
-                    ellipse(xx*this.gridSize+0.5*this.gridSize,yy*this.gridSize+0.5*this.gridSize,this.gridSize)
+                    ellipse(xx*this.gridSize+0.5*this.gridSize + this.x,yy*this.gridSize+0.5*this.gridSize + this.y,this.gridSize)
                     fill(COLOR_BACK)
                 }
             }
         }
         textSize(32);
         fill("black")
-        text(this.point, this.x+this.gridSize, this.gridSize*(this.h+1));
+        text(this.point, this.x+this.gridSize, this.gridSize*(this.h+1) + this.y);
     }
 
     isEmpty(x, y) {
