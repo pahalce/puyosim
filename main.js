@@ -1,6 +1,8 @@
 let field,simBtn;
-const PUYOLIST = ["blue","red","green"]
-
+const PUYOLIST = ["blue","red","green","yellow"]
+const REN_BONUS = [0, 8, 16, 32, 64, 96, 128, 160, 192,224,256,288,320,352,384,416,448,480,512] // 連鎖ボーナス
+const CON_BONUS = [0, 2, 3, 4, 5, 6, 7, 10] // 連結ボーナス
+const COL_BONUS = [0,3,6,12,24] // 色ボーナス
 
 document.oncontextmenu = function() {
     if (mouseX < width && mouseY < height) return false;
@@ -67,6 +69,9 @@ class Field extends UIGrid{
     constructor(w,h,gridSize,x=0,y=0) {
         super(x,y,w,h,gridSize)
         this.eraseInfo = []
+        this.rensa = 0;
+        this.rensaInfo = []
+        this.point = 0;
     }
 
     draw() {
@@ -88,12 +93,14 @@ class Field extends UIGrid{
     check(x,y,color,start=[0,0]) {
         this.eraseInfo=[]
         this.checkConnection(x,y,color,start)
-        
         if (this.eraseInfo.length < 4) {
             this.eraseInfo.forEach(info => {
                 this.cell[info.x][info.y] = info.color
             })
-        } 
+            this.eraseInfo=[]
+        } else {
+            this.rensaInfo.push({connection : this.eraseInfo.length, color : this.eraseInfo[0].color})
+        }
     }
     checkAll() {
         for (let x=0; x<this.w; x++){
@@ -115,10 +122,10 @@ class Field extends UIGrid{
                 y:y,
                 color:color
             })
-            this.checkConnection(x+1,y,color);
-            this.checkConnection(x,y+1,color);
-            this.checkConnection(x-1,y,color);
-            this.checkConnection(x,y-1,color);
+            this.checkConnection(x+1,y,color,start);
+            this.checkConnection(x,y+1,color,start);
+            this.checkConnection(x-1,y,color,start);
+            this.checkConnection(x,y-1,color,start);
         }
     }
     place(x,y,color) {
@@ -130,7 +137,7 @@ class Field extends UIGrid{
     fall() {
         let found = false
         for (let x=this.w-1; x>=0; x--){
-            for (let y=this.h-2; y>=0; y--){                
+            for (let y=this.h-2; y>=0; y--){
                 if (!this.isEmpty(x,y) && this.isEmpty(x,y+1)) {
                     this.fallPuyo(x,y);
                     found=true
@@ -159,17 +166,42 @@ class Field extends UIGrid{
         this.cell[x][y] = ""
     }
     async simulate() {
+        this.rensa = 0;
+        this.point = 0;
+        this.rensaInfo=[]
         if (!this.canFall()) {
+            this.rensa += 1;
             this.checkAll();
-            await this.wait()
+            this.calc_point();
+            await this.wait();
         }
 
         while(this.fall()) {
             await this.wait();
+            this.rensa += 1;
             this.checkAll();
+            this.calc_point();
             await this.wait();
         }
-        
+    }
+    calc_point() {
+        let connection_total=0, connection_b=0, used_color = [], bonus=0
+        this.rensaInfo.forEach(rensa => {
+            if (!(used_color.includes(rensa.color))) {
+                used_color.push(rensa.color)
+            }
+            connection_total += rensa.connection
+            if (rensa.connection >= CON_BONUS.length+3) {
+                connection_b += CON_BONUS[CON_BONUS.length-1]
+            } else {
+                connection_b += CON_BONUS[rensa.connection-4]
+            }
+        })
+        bonus = connection_b + COL_BONUS[used_color.length-1] + REN_BONUS[this.rensa-1]
+        if (bonus === 0) bonus = 1;
+        this.point += connection_total * 10 * (bonus)
+        print(this.point)
+        this.rensaInfo=[]
     }
     wait() {
         return new Promise(resolve => {
