@@ -24,7 +24,6 @@ function draw() {
 
     if (mouseIsPressed) {
         if (field.isLeftClicked()) {
-            // print("place:",field.posToGrid(mouseX),field.posToGrid(mouseY),puyoSelector.selected)
             field.place(field.posToGrid(mouseX),field.posToGrid(mouseY,1),PUYOLIST[puyoSelector.selected])
         }
         if (field.isRightClicked()) {
@@ -86,6 +85,9 @@ class Field extends UIGrid{
                 }
             }
         }
+        textSize(32);
+        fill("black")
+        text(this.point, this.x+this.gridSize, this.gridSize*(this.h+1));
     }
 
     isEmpty(x, y) {
@@ -130,7 +132,6 @@ class Field extends UIGrid{
         }
     }
     place(x,y,color) {
-        print(this.cell[x][y],x,y,color)
         this.cell[x][y] = color
     }
     erase (x,y) {
@@ -174,7 +175,7 @@ class Field extends UIGrid{
         if (!this.canFall()) {
             this.rensa += 1;
             this.checkAll();
-            this.calc_point();
+            if (this.rensaInfo.length != 0) this.calc_point();
             await this.wait();
         }
 
@@ -182,7 +183,7 @@ class Field extends UIGrid{
             await this.wait();
             this.rensa += 1;
             this.checkAll();
-            this.calc_point();
+            if (this.rensaInfo.length != 0) this.calc_point();
             await this.wait();
         }
     }
@@ -202,7 +203,6 @@ class Field extends UIGrid{
         bonus = connection_b + COL_BONUS[used_color.length-1] + REN_BONUS[this.rensa-1]
         if (bonus === 0) bonus = 1;
         this.point += connection_total * 10 * (bonus)
-        print(this.point)
         this.rensaInfo=[]
     }
     wait() {
@@ -220,6 +220,7 @@ class PuyoSelector extends UIGrid {
         this.selected = 0;
     }
     draw() {
+        fill(220)
         stroke("grey")
         strokeWeight(3);
         rect(this.x+(this.selected*this.gridSize),this.y,this.gridSize,this.gridSize)
