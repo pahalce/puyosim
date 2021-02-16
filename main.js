@@ -173,6 +173,7 @@ class Field extends UIGrid{
         this.cell[x][y] = ""
     }
     async simulate() {
+        const saveCell = this.copyMatrix(this.cell); 
         this.simulating = true;
         this.rensa = 0;
         this.point = 0;
@@ -192,6 +193,7 @@ class Field extends UIGrid{
             await this.wait();
         }
         this.simulating = false;
+        this.cell = this.copyMatrix(saveCell)
     }
     calc_point() {
         let connection_total=0, connection_b=0, used_color = [], bonus=0
@@ -218,6 +220,13 @@ class Field extends UIGrid{
             }, 700);
         })
     }
+    copyMatrix(base) {
+        const result = [];
+        for (const line of base) {
+          result.push(line.slice());
+        }
+        return result;
+      }
 }
 
 class PuyoSelector extends UIGrid {
