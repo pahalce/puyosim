@@ -3,6 +3,7 @@ const PUYOLIST = ["blue","red","green","yellow"]
 const REN_BONUS = [0, 8, 16, 32, 64, 96, 128, 160, 192,224,256,288,320,352,384,416,448,480,512] // 連鎖ボーナス
 const CON_BONUS = [0, 2, 3, 4, 5, 6, 7, 10] // 連結ボーナス
 const COL_BONUS = [0,3,6,12,24] // 色ボーナス
+const COLOR_BACK = 220
 
 document.oncontextmenu = function() {
     if (mouseX < width && mouseY < height) return false;
@@ -18,16 +19,18 @@ function setup() {
 }
 
 function draw() {
-    background(220);
+    background(COLOR_BACK);
     field.draw();
     puyoSelector.draw();
 
     if (mouseIsPressed) {
-        if (field.isLeftClicked()) {
-            field.place(field.posToGrid(mouseX),field.posToGrid(mouseY,1),PUYOLIST[puyoSelector.selected])
-        }
-        if (field.isRightClicked()) {
-            field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY))
+        if (!field.simulating) {
+            if (field.isLeftClicked()) {
+                field.place(field.posToGrid(mouseX),field.posToGrid(mouseY,1),PUYOLIST[puyoSelector.selected])
+            }
+            if (field.isRightClicked()) {
+                field.erase(field.posToGrid(mouseX),field.posToGrid(mouseY))
+            }
         }
         if (puyoSelector.isLeftClicked()) {
             puyoSelector.select(puyoSelector.posToGrid(mouseX))
@@ -72,6 +75,7 @@ class Field extends UIGrid{
         this.rensa = 0;
         this.rensaInfo = []
         this.point = 0;
+        this.simulating = false;
     }
 
     draw() {
@@ -81,7 +85,7 @@ class Field extends UIGrid{
                 if (!this.isEmpty(xx,yy)) {
                     fill(color(this.cell[xx][yy]))
                     ellipse(xx*this.gridSize+0.5*this.gridSize,yy*this.gridSize+0.5*this.gridSize,this.gridSize)
-                    fill(220)
+                    fill(COLOR_BACK)
                 }
             }
         }
@@ -169,6 +173,7 @@ class Field extends UIGrid{
         this.cell[x][y] = ""
     }
     async simulate() {
+        this.simulating = true;
         this.rensa = 0;
         this.point = 0;
         this.rensaInfo=[]
@@ -186,6 +191,7 @@ class Field extends UIGrid{
             if (this.rensaInfo.length != 0) this.calc_point();
             await this.wait();
         }
+        this.simulating = false;
     }
     calc_point() {
         let connection_total=0, connection_b=0, used_color = [], bonus=0
@@ -220,7 +226,7 @@ class PuyoSelector extends UIGrid {
         this.selected = 0;
     }
     draw() {
-        fill(220)
+        fill(COLOR_BACK)
         stroke("grey")
         strokeWeight(3);
         rect(this.x+(this.selected*this.gridSize),this.y,this.gridSize,this.gridSize)
@@ -229,7 +235,7 @@ class PuyoSelector extends UIGrid {
         for (let i=0;i<PUYOLIST.length;i++){
             fill(color(PUYOLIST[i]))
             ellipse(this.x+i*this.gridSize+0.5*this.gridSize,this.y+0.5*this.gridSize,this.gridSize)
-            fill(220)
+            fill(COLOR_BACK)
         }
     }
     select(n) {
