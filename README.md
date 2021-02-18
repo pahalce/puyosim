@@ -1,2 +1,2 @@
 # puyosim
-ぷよぷよシミュレータ
+[ぷよぷよシミュレータ](https://pahalce.github.io/puyosim/ "ぷよぷよシミュレータ")
